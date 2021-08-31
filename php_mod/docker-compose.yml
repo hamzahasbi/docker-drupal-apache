@@ -12,8 +12,8 @@ services:
         ipv4_address: 172.28.0.103
 
     volumes:
-      - "./database:/var/lib/mysql"
-      - "./database:/etc/mysql/conf.d"
+      - "../database:/var/lib/mysql"
+      - "../database:/etc/mysql/conf.d"
     ports:
       - "3306:3306"
   php:
