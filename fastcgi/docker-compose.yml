@@ -1,0 +1,81 @@
+version: "3"
+
+services:
+  apache:
+    build: ./http
+    restart: always
+    volumes:
+      - ./http/apache2.conf:/opt/docker/etc/httpd/conf.d/apache2.conf
+      - ./vhosts:/opt/docker/etc/httpd/vhost.common.d
+      # - /Users/hamza/Documents/laboiterose/ssl:/opt/docker/etc/httpd/ssl
+      - /Users/hamza/Documents/laboiterose:/var/www/html
+    environment:
+      - WEB_DOCUMENT_ROOT=/var/www/html
+      - WEB_PHP_SOCKET=172.30.0.102:9000
+      - WEB_ALIAS_DOMAIN=laboiterose.dev
+    ports:  
+      - '80:8080'
+      - '443:8443'
+    links:
+        - php
+    networks:
+      vpcbr:
+        ipv4_address: 172.30.0.101
+  database:
+    image: mariadb:latest
+    restart: always
+    hostname: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      vpcbr:
+        ipv4_address: 172.30.0.103
+
+    volumes:
+      - "../database:/var/lib/mysql"
+      - "../database:/etc/mysql/conf.d"
+    ports:
+      - "3306:3306"
+  php:
+    build: ./php
+    restart: always
+    links:
+      - database
+    ports:
+      - "9000:9000"
+    volumes:
+      - /Users/hamza/Documents/laboiterose/:/var/www/html
+      - ./http/apache2.conf:/etc/apache2/apache2.conf
+      - ./http/vhosts.conf:/etc/apache2/sites-available/vhosts.conf
+      - ./php/phpinfo.php:/var/www/html/info.php
+      # - ./nginx-conf:/etc/nginx/conf.d
+      # - certbot-etc:/etc/letsencrypt
+    networks:
+      vpcbr:
+        ipv4_address: 172.30.0.102
+
+
+  # certbot:
+  #   depends_on:
+  #     - webserver
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - certbot-etc:/etc/letsencrypt
+  #     - drupal-data:/var/www/html
+  #   command: certonly --webroot --webroot-path=/var/www/html --email sammy@your_domain --agree-tos --no-eff-email --staging -d your_domain -d www.your_domain
+
+  memcached:
+    image: memcached
+    ports:
+      - "11211:11211"
+    networks:
+      vpcbr:
+        ipv4_address: 172.30.0.105
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+
