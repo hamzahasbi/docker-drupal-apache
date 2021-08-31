@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+  database:
+    image: mariadb:latest
+    restart: always
+    hostname: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      vpcbr:
+        ipv4_address: 172.28.0.103
+
+    volumes:
+      - "./database:/var/lib/mysql"
+      - "./database:/etc/mysql/conf.d"
+    ports:
+      - "3306:3306"
+  php:
+    build: ./php
+    restart: always
+    container_name: d8_php
+    links:
+      - database
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /Users/hamza/Documents/laboiterose/:/var/www/html
+      - ./http/apache2.conf:/etc/apache2/apache2.conf
+      - ./http/vhosts.conf:/etc/apache2/sites-available/vhosts.conf
+      - ./php/phpinfo.php:/var/www/html/info.php
+      # - ./nginx-conf:/etc/nginx/conf.d
+      # - certbot-etc:/etc/letsencrypt
+    networks:
+      vpcbr:
+        ipv4_address: 172.28.0.102
+
+
+  # certbot:
+  #   depends_on:
+  #     - webserver
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - certbot-etc:/etc/letsencrypt
+  #     - drupal-data:/var/www/html
+  #   command: certonly --webroot --webroot-path=/var/www/html --email sammy@your_domain --agree-tos --no-eff-email --staging -d your_domain -d www.your_domain
+
+  memcached:
+    image: memcached
+    ports:
+      - "11211:11211"
+    networks:
+      vpcbr:
+        ipv4_address: 172.28.0.105
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
