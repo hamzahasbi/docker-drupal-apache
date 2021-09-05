@@ -27,10 +27,8 @@ fi
 [ -z "$3" ] && domain="localhost"
 [ -z "$2" ] && echo "Docroot is mandatory since it does not have a default value" && exit 0
 
-export DOMAIN=$domain
-export WEBROOT=$docroot
+
 export MODE=$mode
 
-cd "$(pwd)/$MODE"
+cd "$(pwd)/$MODE" && export DOMAIN=$domain && export WEBROOT=$docroot && docker-compose up --force-recreate --build
 # cd /Users/hamza/Documents/personal-docker/docker-drupal-apache/fastcgi
-echo $mode
