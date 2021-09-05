@@ -6,16 +6,17 @@ services:
     restart: always
     volumes:
       - ./http/apache2.conf:/opt/docker/etc/httpd/conf.d/apache2.conf
-      - ./vhosts:/opt/docker/etc/httpd/vhost.common.d
-      - "${WEBROOT}/ssl":/opt/docker/etc/httpd/ssl
-      - "${WEBROOT}":/var/www/html
+      # - ./vhosts:/opt/docker/etc/httpd/vhost.common.d
+      - ./vhosts/vhosts.conf:/opt/docker/etc/httpd/vhost.conf
+      - ${WEBROOT}/ssl:/opt/docker/etc/httpd/ssl
+      - ${WEBROOT}:/var/www/html
     environment:
       - WEB_DOCUMENT_ROOT=/var/www/html
       - WEB_PHP_SOCKET=172.30.0.102:9000
       - WEB_ALIAS_DOMAIN=${DOMAIN}
     ports:  
-      - '80:8080'
-      - '443:8443'
+      - '80:80'
+      - '443:443'
     links:
         - php
     networks:
@@ -44,7 +45,7 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - "${WEBROOT}":/var/www/html
+      - ${WEBROOT}:/var/www/html
       - ./http/apache2.conf:/etc/apache2/apache2.conf
       - ./http/vhosts.conf:/etc/apache2/sites-available/vhosts.conf
       - ./php/phpinfo.php:/var/www/html/info.php
