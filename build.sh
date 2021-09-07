@@ -36,7 +36,7 @@ fi
 [ -z "$4" ] && sslcert=false
 [ -z "$docroot" ] && echo "Docroot is mandatory since it does not have a default value" && exit 0
 
-echo $sslcert
+
 if [ "$sslcert" = true ] ; then
   # ---------SSL Certificate ------------#
   [ -d ssl ] || mkdir ssl
