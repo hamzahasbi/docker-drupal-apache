@@ -54,18 +54,6 @@ services:
     networks:
       vpcbr:
         ipv4_address: 172.30.0.102
-
-
-  # certbot:
-  #   depends_on:
-  #     - webserver
-  #   image: certbot/certbot
-  #   container_name: certbot
-  #   volumes:
-  #     - certbot-etc:/etc/letsencrypt
-  #     - drupal-data:/var/www/html
-  #   command: certonly --webroot --webroot-path=/var/www/html --email sammy@your_domain --agree-tos --no-eff-email --staging -d your_domain -d www.your_domain
-
   memcached:
     image: memcached
     ports:
