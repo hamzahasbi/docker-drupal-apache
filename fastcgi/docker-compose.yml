@@ -49,8 +49,6 @@ services:
       - ./http/apache2.conf:/etc/apache2/apache2.conf
       - ./http/vhosts.conf:/etc/apache2/sites-available/vhosts.conf
       - ./php/phpinfo.php:/var/www/html/info.php
-      # - ./nginx-conf:/etc/nginx/conf.d
-      # - certbot-etc:/etc/letsencrypt
     networks:
       vpcbr:
         ipv4_address: 172.30.0.102
@@ -61,6 +59,16 @@ services:
     networks:
       vpcbr:
         ipv4_address: 172.30.0.105
+  memcachedAdmin:
+    image: hatamiarash7/memcached-admin:latest
+    environment:
+      - MEMCACHED_HOST="127.0.0.1"
+      - MEMCACHED_PORT="11211"
+    ports:
+      - 90:80
+    networks:
+      vpcbr:
+        ipv4_address: 172.30.0.104
 networks:
   vpcbr:
     driver: bridge
