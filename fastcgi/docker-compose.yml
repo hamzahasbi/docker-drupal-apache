@@ -54,6 +54,8 @@ services:
         ipv4_address: 172.30.0.102
   memcached:
     image: memcached
+    restart: always
+
     ports:
       - "11211:11211"
     networks:
@@ -61,6 +63,8 @@ services:
         ipv4_address: 172.30.0.105
   memcachedAdmin:
     image: hatamiarash7/memcached-admin:latest
+    restart: always
+
     environment:
       - MEMCACHED_HOST="127.0.0.1"
       - MEMCACHED_PORT="11211"
