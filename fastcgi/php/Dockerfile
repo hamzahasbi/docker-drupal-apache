@@ -30,6 +30,7 @@ RUN apt-get update && apt-get upgrade -y \
     wget \
     unzip \
     zlib1g-dev \
+    imagemagick \
     && docker-php-ext-install -j$(nproc) \
     mbstring \
     xsl \
