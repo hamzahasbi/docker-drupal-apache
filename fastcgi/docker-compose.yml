@@ -4,6 +4,7 @@ services:
   apache:
     build: ./http
     restart: always
+    container_name: "${PROJECT_NAME}_apache"
     volumes:
       - ./http/apache2.conf:/opt/docker/etc/httpd/conf.d/apache2.conf
       # - ./vhosts:/opt/docker/etc/httpd/vhost.common.d
@@ -24,10 +25,11 @@ services:
         ipv4_address: 172.30.0.101
   database:
     image: mariadb:latest
+    container_name: "${PROJECT_NAME}_mariadb"
     restart: always
-    hostname: mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
+    hostname: mariadb
+    env_file:
+      - ../.env
     networks:
       vpcbr:
         ipv4_address: 172.30.0.103
@@ -40,8 +42,10 @@ services:
   php:
     build: ./php
     restart: always
+    container_name: "${PROJECT_NAME}_php"
     links:
       - database
+      - blackfire
     ports:
       - "9000:9000"
     volumes:
@@ -54,8 +58,8 @@ services:
         ipv4_address: 172.30.0.102
   memcached:
     image: memcached
+    container_name: "${PROJECT_NAME}_memcached"
     restart: always
-
     ports:
       - "11211:11211"
     networks:
@@ -63,16 +67,39 @@ services:
         ipv4_address: 172.30.0.105
   memcachedAdmin:
     image: hatamiarash7/memcached-admin:latest
-    restart: always
-
-    environment:
-      - MEMCACHED_HOST="127.0.0.1"
-      - MEMCACHED_PORT="11211"
+    container_name: "${PROJECT_NAME}_memcachedAdmin"
+    env_file:
+      - ../.env
     ports:
       - 90:80
     networks:
       vpcbr:
         ipv4_address: 172.30.0.104
+  blackfire:
+    image: blackfire/blackfire:2
+    container_name: "${PROJECT_NAME}_blackfire"
+    ports: 
+      - "8307:8307"
+    env_file:
+      - ../.env
+    networks:
+      vpcbr:
+        ipv4_address: 172.30.0.106
+  mysql:
+    image: mysql/mysql-server:8.0
+    restart: always
+    hostname: mysql
+    container_name: "${PROJECT_NAME}_mysql"
+    ports:
+      - "3307:3306"
+    env_file:
+      - ../.env
+    networks:
+      vpcbr:
+        ipv4_address: 172.30.0.108
+    volumes:
+      - "../database/mysqlD:/var/lib/mysql"
+      - "../database/my.conf:/etc/mysql/conf.d/my.conf"
 networks:
   vpcbr:
     driver: bridge
