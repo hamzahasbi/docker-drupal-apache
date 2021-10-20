@@ -65,15 +65,16 @@ RUN apt-get update && apt-get upgrade -y \
     && docker-php-ext-install ldap \
     && docker-php-ext-configure zip \
     && docker-php-ext-install zip \
-    && pecl install xdebug && docker-php-ext-enable xdebug \
+    # && pecl install xdebug && docker-php-ext-enable xdebug \
+    # && pecl install xhprof && docker-php-ext-enable xhprof \
     && pecl install memcached && docker-php-ext-enable memcached \
     && pecl install mongodb && docker-php-ext-enable mongodb \
     && pecl install redis && docker-php-ext-enable redis \
     && yes '' | pecl install imagick && docker-php-ext-enable imagick \
-    && pecl install apcu && docker-php-ext-enable apcu \
+    # && pecl install apcu && docker-php-ext-enable apcu \
     && pecl install uploadprogress && docker-php-ext-enable uploadprogress \
-    && echo "apc.enable_cli=1\n"  \
-            "apc.enable=1\n" > /usr/local/etc/php/conf.d/apc.ini \
+    # && echo "apc.enable_cli=1\n"  \
+    #         "apc.enable=1\n" > /usr/local/etc/php/conf.d/apc.ini \
     && docker-php-source delete \
     && cd /usr/src \
     && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
@@ -93,7 +94,15 @@ RUN apt-get update && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/* /var/tmp/*
 
-ADD xdebug.ini  /etc/php7.4/conf.d/
+RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
+    && architecture=$(uname -m) \
+    && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/$architecture/$version \
+    && mkdir -p /tmp/blackfire \
+    && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
+    && mv /tmp/blackfire/blackfire-*.so $(php -r "echo ini_get ('extension_dir');")/blackfire.so \
+    && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
+# ADD xdebug.ini  $PHP_INI_DIR/conf.d
+ADD blackfire.ini  $PHP_INI_DIR/conf.d
 
 RUN echo "upload_max_filesize = 500M\n" \
          "post_max_size = 500M\n" \
