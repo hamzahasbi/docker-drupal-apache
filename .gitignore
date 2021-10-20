@@ -4,3 +4,4 @@
 database/*
 !*database/my.conf
 ssl/
+.env
