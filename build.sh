@@ -5,6 +5,7 @@ echo "---- Let's build your Lamp stack ----"
 mode='fastcgi'
 domain='localhost'
 sslcert=0
+project='dev'
 
 if [ -z "$1" ]
 then
@@ -26,14 +27,20 @@ else
 fi
 if [ -z "$4" ]
 then
+  read -p "Project Name: " project
+else
+  project=$4
+fi
+if [ -z "$5" ]
+then
   read -p "Do you want to generate self signed ssl certicate (default to false) you'll need to configure it in docker-compose file(true/false): " sslcert
 else
-  sslcert=$4
+  sslcert=$5
 fi
 
 [ -z "$1" ] && mode='fastcgi'
 [ -z "$3" ] && domain="localhost"
-[ -z "$4" ] && sslcert=false
+[ -z "$5" ] && sslcert=false
 [ -z "$docroot" ] && echo "Docroot is mandatory since it does not have a default value" && exit 0
 
 
@@ -54,4 +61,5 @@ fi
 export MODE=$mode
 export DOMAIN=$domain 
 export WEBROOT=$docroot
+export PROJECT_NAME=$project
 cd "$(pwd)/$MODE" && docker-compose up --force-recreate --build --d
