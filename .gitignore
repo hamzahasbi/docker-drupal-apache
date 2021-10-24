@@ -3,5 +3,7 @@
 .idea
 database/*
 !*database/my.conf
+data/*
 ssl/
 .env
+*.sql
