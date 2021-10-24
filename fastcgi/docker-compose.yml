@@ -38,7 +38,7 @@ services:
       - "../database:/var/lib/mysql"
       - "../database:/etc/mysql/conf.d"
     ports:
-      - "3306:3306"
+      - "3308:3306"
   php:
     build: ./php
     restart: always
@@ -46,6 +46,7 @@ services:
     links:
       - database
       - blackfire
+      - mysql
     ports:
       - "9000:9000"
     volumes:
@@ -91,15 +92,16 @@ services:
     hostname: mysql
     container_name: "${PROJECT_NAME}_mysql"
     ports:
-      - "3307:3306"
+      - "3306:3306"
     env_file:
       - ../.env
     networks:
       vpcbr:
         ipv4_address: 172.30.0.108
     volumes:
-      - "../database/mysqlD:/var/lib/mysql"
+      - "../data:/var/lib/mysql"
       - "../database/my.conf:/etc/mysql/conf.d/my.conf"
+      - "../dump.sql:/tmp/dump.sql"
 networks:
   vpcbr:
     driver: bridge
