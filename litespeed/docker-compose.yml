@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  webserver:
+    image: litespeedtech/openlitespeed:1.7.14-lsphp74
+    restart: always
+    container_name: "laboiterose_litespeed"
+    volumes:
+      # - ./http/apache2.conf:/opt/docker/etc/httpd/conf.d/apache2.conf
+      # - ./vhosts:/opt/docker/etc/httpd/vhost.common.d
+      # - ./vhosts/vhosts.conf:/opt/docker/etc/httpd/vhost.conf
+      - ~/Documents/drupal/laboiterose:/var/www/vhosts/localhost/html
+    environment:
+      - WEB_DOCUMENT_ROOT=/var/www/vhosts/localhost/html
+      - DOMAIN=laboiterose.dd
+    env_file:
+      - ../.env
+    ports:  
+      - '80:80'
+      - '443:443'
+      - '7080:7080'
+    networks:
+      vpcbr:
+        ipv4_address: 172.20.0.101
+  mysql:
+    image: mysql/mysql-server:8.0
+    restart: always
+    hostname: mysql
+    container_name: "laboiterose_mysql"
+    ports:
+      - "3306:3306"
+    env_file:
+      - ../.env
+    networks:
+      vpcbr:
+        ipv4_address: 172.20.0.108
+    volumes:
+      - "../data:/var/lib/mysql"
+      - "../database/my.conf:/etc/mysql/conf.d/my.conf"
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+

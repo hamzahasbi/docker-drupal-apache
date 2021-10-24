@@ -2,6 +2,8 @@
 
 echo "---- Let's build your Lamp stack ----"
 
+[ -d data ] || mkdir data
+
 mode='fastcgi'
 domain='localhost'
 sslcert=0
