@@ -64,4 +64,4 @@ export MODE=$mode
 export DOMAIN=$domain 
 export WEBROOT=$docroot
 export PROJECT_NAME=$project
-cd "$(pwd)/$MODE" && docker-compose up --force-recreate --build --d
+cd "$(pwd)/$MODE" && docker-compose up --build -d
