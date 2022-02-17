@@ -18,4 +18,6 @@ RUN cd /usr/src \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/* /var/tmp/*
 
+ADD maxsize.ini /usr/local/lsws/lsphp74/etc/php/7.4/mods-available/maxsize.ini
+
 ENV PATH="/root/.composer/vendor/drush/drush:$PATH"
