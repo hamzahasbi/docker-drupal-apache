@@ -37,6 +37,23 @@ services:
     volumes:
       - "../data:/var/lib/mysql"
       - "../database/my.conf:/etc/mysql/conf.d/my.conf"
+
+  php:
+    build: ../fastcgi/php
+    restart: always
+    container_name: "laboiterose_php"
+    links:
+      - mysql
+    ports:
+      - "9000:9000"
+    volumes:
+      - ~/Documents/drupal/laboiterose:/var/www/html
+      # - ../fastcgi/http/apache2.conf:/etc/apache2/apache2.conf
+      # - ../fastcgi/http/vhosts.conf:/etc/apache2/sites-available/vhosts.conf
+      - ../fastcgi/php/phpinfo.php:/var/www/html/info.php
+    networks:
+      vpcbr:
+        ipv4_address: 172.20.0.102
 networks:
   vpcbr:
     driver: bridge
