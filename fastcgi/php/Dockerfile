@@ -1,9 +1,12 @@
-FROM php:7.4.10-fpm
+FROM php:7.4-fpm
 LABEL maintainer="hamza.hasbi@gmail.com"
 
 RUN apt-get update && apt-get upgrade -y \
     && apt-get install -y \
     g++ \
+    time \
+    git \
+    libjudy-dev\
     libbz2-dev \
     libc-client-dev \
     libcurl4-gnutls-dev \
@@ -67,14 +70,15 @@ RUN apt-get update && apt-get upgrade -y \
     && docker-php-ext-install zip \
     # && pecl install xdebug && docker-php-ext-enable xdebug \
     # && pecl install xhprof && docker-php-ext-enable xhprof \
+    && pecl install memprof && docker-php-ext-enable memprof \
     && pecl install memcached && docker-php-ext-enable memcached \
     && pecl install mongodb && docker-php-ext-enable mongodb \
     && pecl install redis && docker-php-ext-enable redis \
     && yes '' | pecl install imagick && docker-php-ext-enable imagick \
-    # && pecl install apcu && docker-php-ext-enable apcu \
+    && pecl install apcu && docker-php-ext-enable apcu \
     && pecl install uploadprogress && docker-php-ext-enable uploadprogress \
-    # && echo "apc.enable_cli=1\n"  \
-    #         "apc.enable=1\n" > /usr/local/etc/php/conf.d/apc.ini \
+    && echo "apc.enable_cli=1\n"  \
+            "apc.enable=1\n" > /usr/local/etc/php/conf.d/apc.ini \
     && docker-php-source delete \
     && cd /usr/src \
     && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
@@ -89,6 +93,10 @@ RUN apt-get update && apt-get upgrade -y \
     && chmod +x drush.phar \
     && mv drush.phar /usr/local/bin/drush \
     && composer global require "drush/drush:9.7.3" \
+    && php -r "readfile('https://drupalconsole.com/installer');" > drupal.phar \
+    && mv drupal.phar /usr/local/bin/drupal \
+    && chmod +x /usr/local/bin/drupal \
+    && composer2 global require drupal/console \
     && apt-get remove -y g++ wget \
     && apt-get autoremove --purge -y && apt-get autoclean -y && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/* \
@@ -104,13 +112,7 @@ RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
 # ADD xdebug.ini  $PHP_INI_DIR/conf.d
 ADD blackfire.ini  $PHP_INI_DIR/conf.d
 
-RUN echo "upload_max_filesize = 500M\n" \
-         "post_max_size = 500M\n" \
-         "memory_limit=3000M\n" \
-         "max_execution_time = 360\n" \
-         "max_input_time = 120\n" \
-         "max_input_nesting_level = 64\n" \
-         > /usr/local/etc/php/conf.d/maxsize.ini
+ADD maxsize.ini /usr/local/etc/php/conf.d/maxsize.ini
 
 RUN chown -R www-data:www-data $HOME/.composer/
 WORKDIR /var/www/html
