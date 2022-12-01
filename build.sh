@@ -53,7 +53,7 @@ if [ "$sslcert" = true ] ; then
   openssl rsa -passin pass:x -in ./ssl/server.pass.key -out ./ssl/server.key
   rm ./ssl/server.pass.key
   openssl req -new -key ./ssl/server.key -out ./ssl/server.csr
-  # subj flag if you don't want an interactive genration 
+  # subj flag if you don't want an interactive genration
   # @example -subj "/C=MA/ST=FEZ/L=FEZ/O=Void/OU=Ar Department/CN=domain.dd"
   openssl x509 -req -days 365 -in ./ssl/server.csr -signkey ./ssl/server.key -out ./ssl/server.crt
 
@@ -61,7 +61,7 @@ if [ "$sslcert" = true ] ; then
 fi
 
 export MODE=$mode
-export DOMAIN=$domain 
+export DOMAIN=$domain
 export WEBROOT=$docroot
 export PROJECT_NAME=$project
-cd "$(pwd)/$MODE" && docker-compose up --build -d
+cd "$(pwd)/$MODE" && docker-compose up -d --build --force-recreate --remove-orphans
