@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.1.13-fpm
 LABEL maintainer="hamza.hasbi@gmail.com"
 
 RUN apt-get update && apt-get upgrade -y \
@@ -33,7 +33,6 @@ RUN apt-get update && apt-get upgrade -y \
     wget \
     unzip \
     zlib1g-dev \
-    imagemagick \
     && docker-php-ext-install -j$(nproc) \
     mbstring \
     xsl \
@@ -54,7 +53,6 @@ RUN apt-get update && apt-get upgrade -y \
     pgsql \
     soap \
     sockets \
-    xmlrpc \
     xsl \
     && apt-get -y --no-install-recommends install msmtp \
     && apt-get -y --no-install-recommends install mariadb-client \
@@ -68,8 +66,9 @@ RUN apt-get update && apt-get upgrade -y \
     && docker-php-ext-install ldap \
     && docker-php-ext-configure zip \
     && docker-php-ext-install zip \
-    # && pecl install xdebug && docker-php-ext-enable xdebug \
-    # && pecl install xhprof && docker-php-ext-enable xhprof \
+    && pecl install xdebug && docker-php-ext-enable xdebug \
+    # && pecl install xmlrpc && docker-php-ext-enable xmlrpc \
+    && pecl install xhprof && docker-php-ext-enable xhprof \
     && pecl install memprof && docker-php-ext-enable memprof \
     && pecl install memcached && docker-php-ext-enable memcached \
     && pecl install mongodb && docker-php-ext-enable mongodb \
@@ -78,20 +77,18 @@ RUN apt-get update && apt-get upgrade -y \
     && pecl install apcu && docker-php-ext-enable apcu \
     && pecl install uploadprogress && docker-php-ext-enable uploadprogress \
     && echo "apc.enable_cli=1\n"  \
-            "apc.enable=1\n" > /usr/local/etc/php/conf.d/apc.ini \
+            "apc.enable=1\n" \
+            "apc.shm_size=64M" > /usr/local/etc/php/conf.d/apc.ini \
     && docker-php-source delete \
     && cd /usr/src \
     && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php composer-setup.php --version=1.10.14 && mv composer.phar /usr/local/bin/composer \
-    && wget -O drush.phar "https://github.com/drush-ops/drush-launcher/releases/download/0.8.0/drush.phar" \
+    && wget -O drush.phar "https://github.com/drush-ops/drush-launcher/releases/tag/0.10.1/drush.phar" \
     && chmod +x drush.phar \
     && mv drush.phar /usr/local/bin/drush \
     && cd /usr/src \
     && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php composer-setup.php --version=2.1.6 && mv composer.phar /usr/local/bin/composer2 \
-    && wget -O drush.phar "https://github.com/drush-ops/drush-launcher/releases/download/0.8.0/drush.phar" \
-    && chmod +x drush.phar \
-    && mv drush.phar /usr/local/bin/drush \
     && composer global require "drush/drush:9.7.3" \
     && php -r "readfile('https://drupalconsole.com/installer');" > drupal.phar \
     && mv drupal.phar /usr/local/bin/drupal \
@@ -116,5 +113,6 @@ ADD maxsize.ini /usr/local/etc/php/conf.d/maxsize.ini
 
 RUN chown -R www-data:www-data $HOME/.composer/
 WORKDIR /var/www/html
-ENV PATH="/root/.composer/vendor/drush/drush:$PATH"
+ENV PATH="/root/.composer/vendor/bin:$PATH"
+ENV PATH="/var/www/html/vendor/bin:$PATH"
 
