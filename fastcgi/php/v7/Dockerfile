@@ -1,4 +1,4 @@
-FROM php:8.1.13-fpm
+FROM php:7.4-fpm
 LABEL maintainer="hamza.hasbi@gmail.com"
 
 RUN apt-get update && apt-get upgrade -y \
@@ -66,7 +66,7 @@ RUN apt-get update && apt-get upgrade -y \
     && docker-php-ext-install ldap \
     && docker-php-ext-configure zip \
     && docker-php-ext-install zip \
-    && pecl install xdebug && docker-php-ext-enable xdebug \
+    # && pecl install xdebug && docker-php-ext-enable xdebug \
     # && pecl install xmlrpc && docker-php-ext-enable xmlrpc \
     && pecl install xhprof && docker-php-ext-enable xhprof \
     && pecl install memprof && docker-php-ext-enable memprof \
