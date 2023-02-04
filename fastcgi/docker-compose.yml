@@ -15,7 +15,7 @@ services:
       - WEB_DOCUMENT_ROOT=/var/www/html
       - WEB_PHP_SOCKET=172.30.0.102:9000
       - WEB_ALIAS_DOMAIN=${DOMAIN}
-    ports:  
+    ports:
       - '80:80'
       - '443:443'
     links:
@@ -24,29 +24,31 @@ services:
       vpcbr:
         ipv4_address: 172.30.0.101
   database:
-    image: mariadb:latest
+    image: arm64v8/mariadb:10.3
     container_name: "${PROJECT_NAME}_mariadb"
     restart: always
-    hostname: mariadb
-    env_file:
-      - ../.env
+    # env_file:
+    #   - ../.env
     networks:
       vpcbr:
         ipv4_address: 172.30.0.103
 
     volumes:
       - "../database:/var/lib/mysql"
-      - "../database:/etc/mysql/conf.d"
+      - "../database:/etc/mysql/conf.d/"
     ports:
-      - "3308:3306"
+      - "3306:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_ROOT_HOST=%
+      - MYSQL_INITDB_SKIP_TZINFO=1
   php:
-    build: ./php
+    build: "./php/${PHP_VERSION}"
     restart: always
     container_name: "${PROJECT_NAME}_php"
     links:
       - database
       - blackfire
-      - mysql
     ports:
       - "9000:9000"
     volumes:
@@ -79,29 +81,57 @@ services:
   blackfire:
     image: blackfire/blackfire:2
     container_name: "${PROJECT_NAME}_blackfire"
-    ports: 
+    ports:
       - "8307:8307"
     env_file:
       - ../.env
     networks:
       vpcbr:
         ipv4_address: 172.30.0.106
-  mysql:
-    image: mysql/mysql-server:8.0
+
+  adminer:
+    image: adminer
     restart: always
-    hostname: mysql
-    container_name: "${PROJECT_NAME}_mysql"
+    links:
+      - "database"
     ports:
-      - "3306:3306"
-    env_file:
-      - ../.env
+      - 85:8080
+    environment:
+      - ADMINER_DEFAULT_SERVER=database
+      - ADMINER_DESIGN='nette'
     networks:
       vpcbr:
-        ipv4_address: 172.30.0.108
-    volumes:
-      - "../data:/var/lib/mysql"
-      - "../database/my.conf:/etc/mysql/conf.d/my.conf"
-      - "../dump.sql:/tmp/dump.sql"
+        ipv4_address: 172.30.0.109
+  phpmyadmin:
+    links:
+      - database
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8088:80
+    environment:
+      - PMA_ARBITRARY=1
+      - MYSQL_ROOT_PASSWORD=root
+      - UPLOAD_LIMIT=12000M
+    networks:
+      vpcbr:
+        ipv4_address: 172.30.0.110
+  # mysql:
+  #   image: mysql/mysql-server:8.0
+  #   restart: always
+  #   hostname: mysql
+  #   container_name: "${PROJECT_NAME}_mysql"
+  #   ports:
+  #     - "3306:3306"
+  #   env_file:
+  #     - ../.env
+  #   networks:
+  #     vpcbr:
+  #       ipv4_address: 172.30.0.108
+  #   volumes:
+  #     - "../data:/var/lib/mysql"
+  #     - "../database/my.conf:/etc/mysql/conf.d/my.conf"
+  #     - "../dump.sql:/tmp/dump.sql"
 networks:
   vpcbr:
     driver: bridge

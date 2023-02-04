@@ -7,6 +7,7 @@ echo "---- Let's build your Lamp stack ----"
 mode='fastcgi'
 domain='localhost'
 sslcert=0
+php_version="v7"
 project='dev'
 
 if [ -z "$1" ]
@@ -39,10 +40,17 @@ then
 else
   sslcert=$5
 fi
+if [ -z "$6" ]
+then
+  read -p "PHP version: " php_version
+else
+  php_version=$6
+fi
 
 [ -z "$1" ] && mode='fastcgi'
 [ -z "$3" ] && domain="localhost"
 [ -z "$5" ] && sslcert=false
+[ -z "$6" ] && php_version="v7"
 [ -z "$docroot" ] && echo "Docroot is mandatory since it does not have a default value" && exit 0
 
 
@@ -59,9 +67,10 @@ if [ "$sslcert" = true ] ; then
 
 # --------- you'll need to copy the keys to the appropriate folder ------------#
 fi
-
+# ~/Documents/personal-docker/docker-drupal-apache/fastcgi/php/v8
 export MODE=$mode
 export DOMAIN=$domain
 export WEBROOT=$docroot
 export PROJECT_NAME=$project
+export PHP_VERSION=$php_version
 cd "$(pwd)/$MODE" && docker-compose up -d --build --force-recreate --remove-orphans
