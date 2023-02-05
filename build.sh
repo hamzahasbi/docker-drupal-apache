@@ -67,7 +67,6 @@ if [ "$sslcert" = true ] ; then
 
 # --------- you'll need to copy the keys to the appropriate folder ------------#
 fi
-# ~/Documents/personal-docker/docker-drupal-apache/fastcgi/php/v8
 export MODE=$mode
 export DOMAIN=$domain
 export WEBROOT=$docroot
